@@ -16,21 +16,64 @@ def create_app(test_config=None):
         database_path = test_config.get('SQLALCHEMY_DATABASE_URI')
         setup_db(app, database_path=database_path)
 
-    """
-    @TODO: Set up CORS. Allow '*' for origins. Delete the sample route after completing the TODOs
-    """
+    CORS(app)
+
     with app.app_context():
         db.create_all()
 
-    """
-    @TODO: Use the after_request decorator to set Access-Control-Allow
-    """
+    @app.after_request
+    def after_request(response):
+        # Allow any origina to access
+        response.headers.add("Access-Control-Allow-Origin", "*")
+        # Allow specific headers
+        response.headers.add("Access-Control-Allow-Headers", "Content-Type,Authorization,true")
+        # Allow specific HTTP methods
+        response.headers.add("Access-Control-Allow-Methods", "GET,POST,PATCH,DELETE,OPTIONS")
 
-    """
-    @TODO:
-    Create an endpoint to handle GET requests
-    for all available categories.
-    """
+        return response
+
+
+    @app.route('/questions', methods=['GET'])
+    def get_questions():
+        #Get all questions and categories.
+        total_questions = Question.query.count()
+        categories_objects = Category.query.all()
+        categories = { category.id: category.type for category in categories_objects }
+
+        page_str = request.args.get("page", '1')
+        # Validate input and calculate offset
+        try:
+            # Attempt conversion to catch non-numeric strings
+            page = int(page_str)
+            # Check for invalid integer values
+            if page <= 0:
+                abort(422)
+            # Calculate offset (the number of items to skip)
+            offset = (page - 1) * QUESTIONS_PER_PAGE
+
+        except ValueError:
+            abort(422)
+        
+        # Pagination query
+        question_query = Question.query.order_by(Question.id)
+        # Apply limit of 10 and the calculated offset
+        questions_on_page = question_query.limit(QUESTIONS_PER_PAGE).offset(offset).all()
+
+        # Handle out of range page
+        if not questions_on_page:
+            abort(404)
+
+        # Format questions
+        formatted_questions = [ question.format() for question in questions_on_page ]
+
+        # Return response
+        return jsonify({
+            "success": True,
+            "questions": formatted_questions,
+            "total_questions": total_questions,
+            "categories": categories,
+            "current_category": "All"
+        }), 200
 
 
     """
