@@ -1,8 +1,10 @@
 import os
 import unittest
+import json
 
 from flaskr import create_app
 from models import db, Question, Category
+from test_data import categories_data, questions_data
 
 
 class TriviaTestCase(unittest.TestCase):
@@ -11,8 +13,8 @@ class TriviaTestCase(unittest.TestCase):
     def setUp(self):
         """Define test variables and initialize app."""
         self.database_name = "trivia_test"
-        self.database_user = "postgres"
-        self.database_password = "password"
+        self.database_user = "cristiancevasco"
+        self.database_password = ""
         self.database_host = "localhost:5432"
         self.database_path = f"postgresql://{self.database_user}:{self.database_password}@{self.database_host}/{self.database_name}"
 
@@ -27,6 +29,22 @@ class TriviaTestCase(unittest.TestCase):
         # Bind the app to the current context and create all tables
         with self.app.app_context():
             db.create_all()
+        
+            # Create categories in database
+            for data in categories_data:
+                category_to_add = Category(type = data['type'])
+                category_to_add.id = data['id']
+                category_to_add.insert()
+            # Create questions in database
+            for data in questions_data:
+                question_to_add = Question(
+                    question=data['question'],
+                    answer = data['answer'],
+                    category = data['category_id'],
+                    difficulty = data['difficulty']
+                    )
+                question_to_add.insert()
+
 
     def tearDown(self):
         """Executed after each test"""
@@ -38,6 +56,54 @@ class TriviaTestCase(unittest.TestCase):
     TODO
     Write at least one test for each test for successful operation and for expected errors.
     """
+    
+    # Tests for /questions endpoint
+    def test_get_paginated_questions(self):
+        # Get response object
+        res = self.client.get("/questions?page=1")
+        # Extract the data from the response in JSON format
+        data = json.loads(res.data)
+        
+        # Check status code
+        self.assertEqual(res.status_code, 200)
+        # Check for expected fields in the response
+        self.assertEqual(data['success'], True)
+        self.assertTrue(data['questions'])
+        self.assertTrue(data['total_questions'])
+        self.assertTrue(data['categories'])
+        self.assertTrue(data['current_category'])
+        # Check if 'category' is a list
+        self.assertIsInstance(data['categories'], dict)
+        # Check pagination rule (10 items per page)
+        self.assertEqual(len(data['questions']), 10)
+
+
+    def test_404_requesting_non_existent_page(self):
+        # Get response object
+        res = self.client.get("/questions?page=1000")
+        # Extract the data from the response in JSON format
+        data = json.loads(res.data)
+
+        # Check status code
+        self.assertEqual(res.status_code, 404)
+        # Check for expected fields in the response
+        self.assertEqual(data["success"], False)
+        self.assertEqual(data["error"], 404)
+        self.assertEqual(data["message"], "resource not found")
+
+
+    def test_422_if_page_parameter_is_not_an_integer(self):
+        # Get response object
+        res = self.client.get("/questions?page=two")
+        # Extract the data from the response in JSON format
+        data = json.loads(res.data)
+
+        # Check status code
+        self.assertEqual(res.status_code, 422)
+        # Check for expected fields in the response
+        self.assertEqual(data["success"], False)
+        self.assertEqual(data["error"], 422)
+        self.assertEqual(data["message"], "unprocessable")
 
 
 # Make the tests conveniently executable
