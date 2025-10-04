@@ -120,20 +120,6 @@ class TriviaTestCase(unittest.TestCase):
         self.assertEqual(data["message"], "method not allowed")
     
 
-    def test_post_method_not_allowed_questions(self):
-        # Get response object
-        res = self.client.post("/questions")
-        # Extract the data from the response in JSON format
-        data = json.loads(res.data)
-
-        # Check status code
-        self.assertEqual(res.status_code, 405)
-        # Check for expected fields in the response
-        self.assertEqual(data["success"], False)
-        self.assertEqual(data["error"], 405)
-        self.assertEqual(data["message"], "method not allowed")
-    
-
     def test_put_method_not_allowed_questions(self):
         # Get response object
         res = self.client.put("/questions")
@@ -319,6 +305,96 @@ class TriviaTestCase(unittest.TestCase):
         self.assertEqual(data["success"], False)
         self.assertEqual(data["error"], 405)
         self.assertEqual(data["message"], "method not allowed")
+    
+
+    # Tests for creations of questions in the /questions endpoint
+    def test_create_new_question(self):
+        # Use app context to call the db
+        with self.app.app_context():
+            # Get the number of total questions before the operations
+            total_questions_before = Question.query.count()
+        # Question to create
+        question_to_add = {
+            "question": "In which year did the Berlin Wall fall, leading to the reunification of Germany?",
+            "answer": "1989",
+            "category": 4,
+            "difficulty": 2
+        }
+        # Get response object
+        res = self.client.post(f"/questions", json=question_to_add)
+        # Extract the data from the response in JSON format
+        data = json.loads(res.data)
+        # Use app context to call the db
+        with self.app.app_context():
+            # Get total questions after adding the question
+            total_questions_after = Question.query.count()
+
+        # Check status code
+        self.assertEqual(res.status_code, 201)
+        # Check for expected fields in the response
+        self.assertEqual(data["success"], True)
+        self.assertTrue(data["created"])
+        # Check that the total questions increased by 1
+        self.assertEqual(total_questions_after, total_questions_before + 1)
+
+
+    def test_400_bad_request_create_question(self):
+        # Use app context to call the db
+        with self.app.app_context():
+            # Get the number of total questions before the operations
+            total_questions_before = Question.query.count()
+        # Question to create
+        question_to_add = {
+            "question": "What is acrophobia a fear of?",
+            "answer": "Heights",
+            "category": 2,
+            "difficulty": "three"
+        }
+        # Get response object
+        res = self.client.post(f"/questions", json=question_to_add)
+        # Extract the data from the response in JSON format
+        data = json.loads(res.data)
+        # Use app context to call the db
+        with self.app.app_context():
+            # Get total questions after adding the question
+            total_questions_after = Question.query.count()
+        # Check status code
+        self.assertEqual(res.status_code, 400)
+        # Check for expected fields in the response
+        self.assertEqual(data["success"], False)
+        self.assertEqual(data["message"], "bad request")
+        # Check that the total number of questions wasn't increased
+        self.assertEqual(total_questions_after, total_questions_before)
+        
+
+    def test_422_if_question_creation_fails(self):
+        # Use app context to call the db
+        with self.app.app_context():
+            # Get the number of total questions before the operations
+            total_questions_before = Question.query.count()
+        # Question to create
+        question_to_add = {
+            "question": "Who was the Ancient Greek God of the Sun?",
+            "category": 4,
+            "difficulty": 2
+        }
+        # Get response object
+        res = self.client.post(f"/questions", json=question_to_add)
+        # Extract the data from the response in JSON format
+        data = json.loads(res.data)
+        # Use app context to call the db
+        with self.app.app_context():
+            # Get total questions after adding the question
+            total_questions_after = Question.query.count()
+
+        # Check status code
+        self.assertEqual(res.status_code, 422)
+        # Check for expected fields in the response
+        self.assertEqual(data["success"], False)
+        self.assertEqual(data["message"], "unprocessable")
+        # Check that the total number of questions wasn't increased
+        self.assertEqual(total_questions_after, total_questions_before)
+        
 
 
 # Make the tests conveniently executable
