@@ -111,16 +111,50 @@ def create_app(test_config=None):
             }), 200
 
 
-    """
-    @TODO:
-    Create an endpoint to POST a new question,
-    which will require the question and answer text,
-    category, and difficulty score.
+    @app.route("/questions", methods=["POST"])
+    def create_question():
+        # Get body
+        body = request.get_json()
+        # Get the values from the body
+        new_question = body.get("question", None)
+        new_answer = body.get("answer", None)
+        new_category = body.get("category", None)
+        new_difficulty = body.get("difficulty", None)
+        # Check if any required fields are missing
+        if not all([new_question, new_answer, new_category, new_difficulty]):
+            abort(422)
+        # Catch the bad data type and return 400.
+        # Explicitly validate that 'difficulty' and 'category' are integers.
+        # This is a preventative measure. The database is strict about its Integer
+        # columns and will throw a fatal error if it receives a non-numeric string
+        # (e.g., "three").
+        try:
+            int(new_difficulty)
+            int(new_category)
+        except (ValueError, TypeError):
+            abort(400)
+        try:
+            # Create a new Question instance
+            question = Question(
+                question=new_question,
+                answer=new_answer,
+                category=new_category,
+                difficulty=new_difficulty
+            )
+            # Add new question
+            question.insert()
+            # Return successful response
+            return jsonify({
+                "success": True,
+                "created": question.id,
+                "total_questions": Question.query.count()
+            }), 201
+        except Exception as e:
+            db.session.rollback()
+            abort(422)
+    
+        abort(422)
 
-    TEST: When you submit a question on the "Add" tab,
-    the form will clear and the question will appear at the end of the last page
-    of the questions list in the "List" tab.
-    """
 
     """
     @TODO:
