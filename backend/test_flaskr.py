@@ -72,7 +72,7 @@ class TriviaTestCase(unittest.TestCase):
         self.assertTrue(data['total_questions'])
         self.assertTrue(data['categories'])
         self.assertTrue(data['current_category'])
-        # Check if 'category' is a list
+        # Check if 'category' is a dict
         self.assertIsInstance(data['categories'], dict)
         # Check pagination rule (10 items per page)
         self.assertEqual(len(data['questions']), 10)
@@ -104,6 +104,133 @@ class TriviaTestCase(unittest.TestCase):
         self.assertEqual(data["success"], False)
         self.assertEqual(data["error"], 422)
         self.assertEqual(data["message"], "unprocessable")
+    
+
+    def test_patch_method_not_allowed_questions(self):
+        # Get response object
+        res = self.client.patch("/questions")
+        # Extract the data from the response in JSON format
+        data = json.loads(res.data)
+
+        # Check status code
+        self.assertEqual(res.status_code, 405)
+        # Check for expected fields in the response
+        self.assertEqual(data["success"], False)
+        self.assertEqual(data["error"], 405)
+        self.assertEqual(data["message"], "method not allowed")
+    
+
+    def test_post_method_not_allowed_questions(self):
+        # Get response object
+        res = self.client.post("/questions")
+        # Extract the data from the response in JSON format
+        data = json.loads(res.data)
+
+        # Check status code
+        self.assertEqual(res.status_code, 405)
+        # Check for expected fields in the response
+        self.assertEqual(data["success"], False)
+        self.assertEqual(data["error"], 405)
+        self.assertEqual(data["message"], "method not allowed")
+    
+
+    def test_put_method_not_allowed_questions(self):
+        # Get response object
+        res = self.client.put("/questions")
+        # Extract the data from the response in JSON format
+        data = json.loads(res.data)
+
+        # Check status code
+        self.assertEqual(res.status_code, 405)
+        # Check for expected fields in the response
+        self.assertEqual(data["success"], False)
+        self.assertEqual(data["error"], 405)
+        self.assertEqual(data["message"], "method not allowed")
+    
+
+    def test_delete_method_not_allowed_questions(self):
+        # Get response object
+        res = self.client.delete("/questions")
+        # Extract the data from the response in JSON format
+        data = json.loads(res.data)
+
+        # Check status code
+        self.assertEqual(res.status_code, 405)
+        # Check for expected fields in the response
+        self.assertEqual(data["success"], False)
+        self.assertEqual(data["error"], 405)
+        self.assertEqual(data["message"], "method not allowed")
+
+
+    # Tests for /categories endpoint
+    def test_get_categories(self):
+        # Get response object
+        res = self.client.get("/categories")
+        # Extract the data from the response in JSON format
+        data = json.loads(res.data)
+
+        # Check status code
+        self.assertEqual(res.status_code, 200)
+        # Check for expected fields in the response
+        self.assertEqual(data["success"], True)
+        self.assertIsInstance(data['categories'], dict)
+        self.assertEqual(len(data['categories']), 6)
+    
+
+    def test_patch_method_not_allowed_categories(self):
+        # Get response object
+        res = self.client.patch("/categories")
+        # Extract the data from the response in JSON format
+        data = json.loads(res.data)
+
+        # Check status code
+        self.assertEqual(res.status_code, 405)
+        # Check for expected fields in the response
+        self.assertEqual(data["success"], False)
+        self.assertEqual(data["error"], 405)
+        self.assertEqual(data["message"], "method not allowed")
+
+
+    def test_post_method_not_allowed_categories(self):
+        # Get response object
+        res = self.client.post("/categories")
+        # Extract the data from the response in JSON format
+        data = json.loads(res.data)
+
+        # Check status code
+        self.assertEqual(res.status_code, 405)
+        # Check for expected fields in the response
+        self.assertEqual(data["success"], False)
+        self.assertEqual(data["error"], 405)
+        self.assertEqual(data["message"], "method not allowed")
+    
+
+    def test_put_method_not_allowed_categories(self):
+        # Get response object
+        res = self.client.put("/categories")
+        # Extract the data from the response in JSON format
+        data = json.loads(res.data)
+
+        # Check status code
+        self.assertEqual(res.status_code, 405)
+        # Check for expected fields in the response
+        self.assertEqual(data["success"], False)
+        self.assertEqual(data["error"], 405)
+        self.assertEqual(data["message"], "method not allowed")
+    
+
+    def test_delete_method_not_allowed_categories(self):
+        # Get response object
+        res = self.client.delete("/categories")
+        # Extract the data from the response in JSON format
+        data = json.loads(res.data)
+
+        # Check status code
+        self.assertEqual(res.status_code, 405)
+        # Check for expected fields in the response
+        self.assertEqual(data["success"], False)
+        self.assertEqual(data["error"], 405)
+        self.assertEqual(data["message"], "method not allowed")
 
 
 # Make the tests conveniently executable
