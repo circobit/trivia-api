@@ -33,6 +33,7 @@ def create_app(test_config=None):
         return response
 
 
+    # Questions endpoint
     @app.route('/questions', methods=['GET'])
     def get_questions():
         #Get all questions and categories.
@@ -76,18 +77,21 @@ def create_app(test_config=None):
         }), 200
 
 
-    """
-    @TODO:
-    Create an endpoint to handle GET requests for questions,
-    including pagination (every 10 questions).
-    This endpoint should return a list of questions,
-    number of total questions, current category, categories.
+    # Categories endpoint
+    @app.route("/categories", methods=["GET"])
+    def get_categories():
+        # Get categories
+        categories_objects = Category.query.all()
+        categories = { category.id: category.type for category in categories_objects }
 
-    TEST: At this point, when you start the application
-    you should see questions and categories generated,
-    ten questions per page and pagination at the bottom of the screen for three pages.
-    Clicking on the page numbers should update the questions.
-    """
+        if not categories:
+            abort(404)
+        else:
+            return jsonify({
+                "success": True,
+                "categories": categories
+            }), 200
+
 
     """
     @TODO:
@@ -140,11 +144,7 @@ def create_app(test_config=None):
     and shown whether they were correct or not.
     """
 
-    """
-    @TODO:
-    Create error handlers for all expected errors
-    including 404 and 422.
-    """
+    # Error handlers
     @app.errorhandler(400)
     def bad_request(error):
         return jsonify ({
@@ -160,6 +160,14 @@ def create_app(test_config=None):
             "error": 404,
             "message": "resource not found"
         }), 404
+    
+    @app.errorhandler(405)
+    def method_not_allowed(error):
+        return jsonify ({
+            "success": False,
+            "error": 405,
+            "message": "method not allowed"
+        }), 405
     
     @app.errorhandler(422)
     def unprocessable(error):
