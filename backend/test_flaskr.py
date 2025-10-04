@@ -231,6 +231,94 @@ class TriviaTestCase(unittest.TestCase):
         self.assertEqual(data["success"], False)
         self.assertEqual(data["error"], 405)
         self.assertEqual(data["message"], "method not allowed")
+    
+
+    # Test for question deletion by id -> /questions/<id>
+    def test_delete_question_by_id(self):
+        # Get response object
+        res = self.client.delete(f"/questions/5")
+        # Extract the data from the response in JSON format
+        data = json.loads(res.data)
+
+        # Check status code
+        self.assertEqual(res.status_code, 200)
+        # Check for expected fields in the response
+        self.assertEqual(data["success"], True)
+        # FIX: Wrap the database check inside the application context
+        with self.app.app_context():
+            # Make sure the object was deleted
+            question = db.session.get(Question, 5)
+            self.assertIsNone(question)
+    
+
+    def test_404_delete_non_existent_question(self):
+        # Get response object
+        res = self.client.delete(f"/questions/1000")
+        # Extract the data from the response in JSON format
+        data = json.loads(res.data)
+
+        # Check status code
+        self.assertEqual(res.status_code, 404)
+        # Check for expected fields in the response
+        self.assertEqual(data["success"], False)
+        self.assertEqual(data["error"], 404)
+        self.assertEqual(data["message"], "resource not found")
+    
+
+    def test_405_get_on_delete_route(self):
+        # Get response object
+        res = self.client.get(f"/questions/7")
+        # Extract the data from the response in JSON format
+        data = json.loads(res.data)
+
+        # Check status code
+        self.assertEqual(res.status_code, 405)
+        # Check for expected fields in the response
+        self.assertEqual(data["success"], False)
+        self.assertEqual(data["error"], 405)
+        self.assertEqual(data["message"], "method not allowed")
+    
+
+    def test_405_patch_on_delete_route(self):
+        # Get response object
+        res = self.client.patch(f"/questions/7")
+        # Extract the data from the response in JSON format
+        data = json.loads(res.data)
+
+        # Check status code
+        self.assertEqual(res.status_code, 405)
+        # Check for expected fields in the response
+        self.assertEqual(data["success"], False)
+        self.assertEqual(data["error"], 405)
+        self.assertEqual(data["message"], "method not allowed")
+    
+
+    def test_405_post_on_delete_route(self):
+        # Get response object
+        res = self.client.post(f"/questions/7")
+        # Extract the data from the response in JSON format
+        data = json.loads(res.data)
+
+        # Check status code
+        self.assertEqual(res.status_code, 405)
+        # Check for expected fields in the response
+        self.assertEqual(data["success"], False)
+        self.assertEqual(data["error"], 405)
+        self.assertEqual(data["message"], "method not allowed")
+    
+
+    def test_405_put_on_delete_route(self):
+        # Get response object
+        res = self.client.put(f"/questions/7")
+        # Extract the data from the response in JSON format
+        data = json.loads(res.data)
+
+        # Check status code
+        self.assertEqual(res.status_code, 405)
+        # Check for expected fields in the response
+        self.assertEqual(data["success"], False)
+        self.assertEqual(data["error"], 405)
+        self.assertEqual(data["message"], "method not allowed")
 
 
 # Make the tests conveniently executable
