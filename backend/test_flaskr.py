@@ -516,6 +516,85 @@ class TriviaTestCase(unittest.TestCase):
         self.assertEqual(res.status_code, 405)
         self.assertEqual(data["success"], False)
         self.assertEqual(data["message"], "method not allowed")
+    
+
+    # Test get questions by category
+    def test_get_questions_by_category(self):
+        # Get response object
+        res = self.client.get(f"/categories/1/questions")
+        # Extract the data from the response in JSON format
+        data = json.loads(res.data)
+
+        # Check status code
+        self.assertEqual(res.status_code, 200)
+        # Check for expected fields in the response
+        self.assertEqual(data["success"], True)
+        self.assertTrue(len(data["questions"]))
+        self.assertTrue(data["total_questions"])
+        # Check that the category of the questions is the expected one
+        for question in data["questions"]:
+            self.assertEqual(question["category"], "1")
+
+
+    def test_404_if_get_questions_for_invalid_category(self):
+        # Get response object
+        res = self.client.get(f"/categories/1000/questions")
+        # Extract the data from the response in JSON format
+        data = json.loads(res.data)
+
+        # Check status code
+        self.assertEqual(res.status_code, 404)
+        # Check for expected fields in the response
+        self.assertEqual(data["success"], False)
+        self.assertEqual(data["message"], "resource not found")
+    
+
+    def test_405_if_get_questions_by_category_with_delete(self):
+        # Get response object
+        res = self.client.delete(f"/categories/1/questions")
+        # Extract the data from the response in JSON format
+        data = json.loads(res.data)
+
+        # Assert that the method is not allowed
+        self.assertEqual(res.status_code, 405)
+        self.assertEqual(data["success"], False)
+        self.assertEqual(data["message"], "method not allowed")
+
+    
+    def test_405_if_get_questions_by_category_with_patch(self):
+        # Get response object
+        res = self.client.patch(f"/categories/1/questions")
+        # Extract the data from the response in JSON format
+        data = json.loads(res.data)
+
+        # Assert that the method is not allowed
+        self.assertEqual(res.status_code, 405)
+        self.assertEqual(data["success"], False)
+        self.assertEqual(data["message"], "method not allowed")
+    
+
+    def test_405_if_get_questions_by_category_with_post(self):
+        # Get response object
+        res = self.client.post(f"/categories/1/questions")
+        # Extract the data from the response in JSON format
+        data = json.loads(res.data)
+
+        # Assert that the method is not allowed
+        self.assertEqual(res.status_code, 405)
+        self.assertEqual(data["success"], False)
+        self.assertEqual(data["message"], "method not allowed")
+    
+
+    def test_405_if_get_questions_by_category_with_put(self):
+        # Get response object
+        res = self.client.put(f"/categories/1/questions")
+        # Extract the data from the response in JSON format
+        data = json.loads(res.data)
+
+        # Assert that the method is not allowed
+        self.assertEqual(res.status_code, 405)
+        self.assertEqual(data["success"], False)
+        self.assertEqual(data["message"], "method not allowed")
 
 
 # Make the tests conveniently executable
