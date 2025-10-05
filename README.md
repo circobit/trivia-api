@@ -92,6 +92,25 @@ The frontend will be running at `http://127.0.0.1:3000/`
 
 ## Running Tests
 
+This project includes tests located in `backend/test_flaskr.py`.
+
+### Create the Test Database
+
+Before running tests, create a PostgreSQL database for testing:
+
+```bash
+psql -U postgres
+CREATE DATABASE trivia_test;
+\q
+```
+
+If needed, update your credentials in test_flaskr.py:
+
+```python
+self.database_user = "your_username"
+self.database_password = "your_password"
+```
+
 To run the backend test suite, navigate to the `backend/` directory and run:
 
 ```bash

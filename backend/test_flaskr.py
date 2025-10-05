@@ -28,6 +28,7 @@ class TriviaTestCase(unittest.TestCase):
 
         # Bind the app to the current context and create all tables
         with self.app.app_context():
+            db.drop_all()
             db.create_all()
         
             # Create categories in database
