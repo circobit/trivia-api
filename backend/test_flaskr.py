@@ -597,6 +597,147 @@ class TriviaTestCase(unittest.TestCase):
         self.assertEqual(data["message"], "method not allowed")
 
 
+    # Test quiz endpoint
+    def test_quiz_endpoint(self):
+        # Define payload
+        payload = {
+            "previous_questions": [1, 5, 10],
+            "quiz_category": {
+                "id": "2",
+                "type": "Art"
+            }
+        }
+        # Get response object
+        res = self.client.post("/quizzes", json=payload)
+        # Extract the data from the response in JSON format
+        data = json.loads(res.data)
+
+        # Check status code
+        self.assertEqual(res.status_code, 200)
+        # Check for expected fields in the response
+        self.assertEqual(data["success"], True)
+        self.assertNotIn(data["question"]["id"], payload["previous_questions"])
+        self.assertTrue(data["question"]["question"])
+        self.assertTrue(data["question"]["answer"])
+        self.assertEqual(data["question"]["category"], payload["quiz_category"]["id"])
+        self.assertTrue(data["question"]["difficulty"])
+    
+
+    # Test quiz endpoint
+    def test_quiz_endpoint_for_all_category(self):
+        # Define payload
+        payload = {
+            "previous_questions": [1, 5, 10],
+            "quiz_category": {
+                "id": 0,
+                "type": "All"
+            }
+        }
+        # Get response object
+        res = self.client.post("/quizzes", json=payload)
+        # Extract the data from the response in JSON format
+        data = json.loads(res.data)
+
+        # Check status code
+        self.assertEqual(res.status_code, 200)
+        # Check for expected fields in the response
+        self.assertEqual(data["success"], True)
+        self.assertNotIn(data["question"]["id"], payload["previous_questions"])
+        self.assertTrue(data["question"]["question"])
+        self.assertTrue(data["question"]["answer"])
+        self.assertTrue(data["question"]["difficulty"])
+    
+
+    def test_end_of_quiz(self):
+        # Add all the available questions numbers to the payload
+        with self.app.app_context():
+            questions_in_category = Question.query.filter(Question.category == '2').all()
+            previous_ids = [ question.id for question in questions_in_category ]
+        # Payload
+        payload = {
+            'previous_questions': previous_ids,
+            'quiz_category': { 'id': '2', 'type': 'Art' }
+        }
+        # Get response object
+        res = self.client.post("/quizzes", json=payload)
+        # Extract the data from the response in JSON format
+        data = json.loads(res.data)
+
+        # Check status code
+        self.assertEqual(res.status_code, 200)
+        # Check for expected fields in the response
+        self.assertEqual(data["success"], True)
+        self.assertIsNone(data["question"])
+    
+
+    def test_405_if_quiz_started_with_delete(self):
+        # Get response object
+        res = self.client.delete("/quizzes")
+        # Extract the data from the response in JSON format
+        data = json.loads(res.data)
+
+        # Check status code
+        self.assertEqual(res.status_code, 405)
+        # Check for expected fields in the response
+        self.assertEqual(data["success"], False)
+        self.assertEqual(data["message"], "method not allowed")
+    
+
+    def test_405_if_quiz_started_with_get(self):
+        # Get response object
+        res = self.client.get("/quizzes")
+        # Extract the data from the response in JSON format
+        data = json.loads(res.data)
+
+        # Check status code
+        self.assertEqual(res.status_code, 405)
+        # Check for expected fields in the response
+        self.assertEqual(data["success"], False)
+        self.assertEqual(data["message"], "method not allowed")
+    
+
+    def test_405_if_quiz_started_with_patch(self):
+        # Get response object
+        res = self.client.patch("/quizzes")
+        # Extract the data from the response in JSON format
+        data = json.loads(res.data)
+
+        # Check status code
+        self.assertEqual(res.status_code, 405)
+        # Check for expected fields in the response
+        self.assertEqual(data["success"], False)
+        self.assertEqual(data["message"], "method not allowed")
+    
+
+    def test_405_if_quiz_started_with_put(self):
+        # Get response object
+        res = self.client.put("/quizzes")
+        # Extract the data from the response in JSON format
+        data = json.loads(res.data)
+
+        # Check status code
+        self.assertEqual(res.status_code, 405)
+        # Check for expected fields in the response
+        self.assertEqual(data["success"], False)
+        self.assertEqual(data["message"], "method not allowed")
+    
+
+    def test_422_if_quiz_fails_with_missing_data(self):
+        # Payload that is missing the 'previous_questions' key
+        payload = {
+            'quiz_category': { 'id': '1', 'type': 'Science' }
+        }
+
+        # Make the request
+        res = self.client.post('/quizzes', json=payload)
+        data = json.loads(res.data)
+
+        # Assert that the request is unprocessable
+        self.assertEqual(res.status_code, 422)
+        self.assertEqual(data['success'], False)
+        self.assertEqual(data['message'], 'unprocessable')
+
+
 # Make the tests conveniently executable
 if __name__ == "__main__":
     unittest.main()
