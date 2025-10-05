@@ -206,17 +206,49 @@ def create_app(test_config=None):
         }), 200
     
 
-    """
-    @TODO:
-    Create a POST endpoint to get questions to play the quiz.
-    This endpoint should take category and previous question parameters
-    and return a random questions within the given category,
-    if provided, and that is not one of the previous questions.
+    @app.route("/quizzes", methods=["POST"])
+    def get_questions_quiz():
+        try:
+            # Get body
+            body = request.get_json()
 
-    TEST: In the "Play" tab, after a user selects "All" or a category,
-    one question at a time is displayed, the user is allowed to answer
-    and shown whether they were correct or not.
-    """
+            # Get necessary payload information
+            previous_questions = body.get('previous_questions')
+            quiz_category = body.get('quiz_category')
+
+            # Check if the required keys are present
+            if previous_questions is None or quiz_category is None:
+                abort(422)
+
+            # Check the category to determine the question
+            if quiz_category["id"] == 0:
+                # Get all questions
+                questions = Question.query.filter(Question.id.notin_(previous_questions)).all()
+            else:
+                # Get questions based on category
+                questions = Question.query.filter(
+                        Question.category == str(quiz_category["id"])
+                    ).filter(
+                        Question.id.notin_(previous_questions)
+                    ).all()
+            
+            # Check wether the quiz has ended or not
+            if len(questions) == 0:
+                return jsonify ({
+                    "success": True,
+                    "question": None
+                })
+            else:
+                chosen_question = random.choice(questions)
+                next_question = chosen_question.format()
+                return jsonify({
+                    "success": True,
+                    "question": next_question
+                })
+
+        except Exception as e:
+            abort(422)
+
 
     # Error handlers
     @app.errorhandler(400)
