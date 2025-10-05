@@ -394,7 +394,128 @@ class TriviaTestCase(unittest.TestCase):
         self.assertEqual(data["message"], "unprocessable")
         # Check that the total number of questions wasn't increased
         self.assertEqual(total_questions_after, total_questions_before)
+    
+
+    # Test search questions
+    def test_search_questions_with_results(self):
+        # Payload to send
+        search_data = {"searchTerm": "planet"}
+        # Get response object
+        res = self.client.post(f"/questions/search", json=search_data)
+        # Extract the data from the response in JSON format
+        data = json.loads(res.data)
         
+        # Check status code
+        self.assertEqual(res.status_code, 200)
+        # Check for expected fields in the response
+        self.assertEqual(data["success"], True)
+        self.assertEqual(len(data["questions"]), 2)
+        self.assertEqual(data["total_questions"], 2)
+        # Check if content is correct
+        for question in data["questions"]:
+            self.assertIn("planet", question["question"].lower())
+    
+
+    def test_search_is_case_insensitive(self):
+        # Payload to send
+        search_data = {"searchTerm": "pLaNeT"}
+        # Get response object
+        res = self.client.post(f"/questions/search", json=search_data)
+        # Extract the data from the response in JSON format
+        data = json.loads(res.data)
+        
+        # Check status code
+        self.assertEqual(res.status_code, 200)
+        # Check for expected fields in the response
+        self.assertEqual(data["success"], True)
+        self.assertEqual(len(data["questions"]), 2)
+        self.assertEqual(data["total_questions"], 2)
+        # Check if content is correct
+        for question in data["questions"]:
+            self.assertIn("planet", question["question"].lower())
+    
+
+    def test_search_matches_substrings(self):
+        # Payload to send
+        search_data = {"searchTerm": "larg"}
+        # Get response object
+        res = self.client.post(f"/questions/search", json=search_data)
+        # Extract the data from the response in JSON format
+        data = json.loads(res.data)
+        
+        # Check status code
+        self.assertEqual(res.status_code, 200)
+        # Check for expected fields in the response
+        self.assertEqual(data["success"], True)
+        self.assertEqual(len(data["questions"]), 1)
+        self.assertEqual(data["total_questions"], 1)
+        # Check if content is correct
+        for question in data["questions"]:
+            self.assertIn("larg", question["question"].lower())
+    
+
+    def test_search_questions_with_no_results(self):
+        # Payload to send
+        search_data = {"searchTerm": "123-doesntexist"}
+        # Get response object
+        res = self.client.post(f"/questions/search", json=search_data)
+        # Extract the data from the response in JSON format
+        data = json.loads(res.data)
+
+        # Check status code
+        self.assertEqual(res.status_code, 200)
+        # Check for expected fields in the response
+        self.assertEqual(data["success"], True)
+        self.assertEqual(len(data["questions"]), 0)
+        self.assertEqual(data["total_questions"], 0)
+    
+
+    def test_405_if_search_attempted_with_delete(self):
+        # Get response object
+        res = self.client.delete(f"/questions/search")
+        # Extract the data from the response in JSON format
+        data = json.loads(res.data)
+
+        # Assert that the method is not allowed
+        self.assertEqual(res.status_code, 405)
+        self.assertEqual(data["success"], False)
+        self.assertEqual(data["message"], "method not allowed")
+    
+
+    def test_405_if_search_attempted_with_get(self):
+        # Get response object
+        res = self.client.get(f"/questions/search")
+        # Extract the data from the response in JSON format
+        data = json.loads(res.data)
+
+        # Assert that the method is not allowed
+        self.assertEqual(res.status_code, 405)
+        self.assertEqual(data["success"], False)
+        self.assertEqual(data["message"], "method not allowed")
+
+    
+    def test_405_if_search_attempted_with_patch(self):
+        # Get response object
+        res = self.client.patch(f"/questions/search")
+        # Extract the data from the response in JSON format
+        data = json.loads(res.data)
+
+        # Assert that the method is not allowed
+        self.assertEqual(res.status_code, 405)
+        self.assertEqual(data["success"], False)
+        self.assertEqual(data["message"], "method not allowed")
+    
+
+    def test_405_if_search_attempted_with_put(self):
+        # Get response object
+        res = self.client.put(f"/questions/search")
+        # Extract the data from the response in JSON format
+        data = json.loads(res.data)
+
+        # Assert that the method is not allowed
+        self.assertEqual(res.status_code, 405)
+        self.assertEqual(data["success"], False)
+        self.assertEqual(data["message"], "method not allowed")
 
 
 # Make the tests conveniently executable
