@@ -2,6 +2,8 @@
 
 This project is the backend API for the Udacitrivia web application. The API provides a system to manage a database of trivia questions, allowing users to view questions by category, add new questions, search for existing questions and play a quiz game.
 
+![App Demo](docs/screenshots/1-homepage.png)
+
 ## Features Implemented
 
 This project involved building the entire backend RESTful API from a partially completed Flask application. The following features were implemented and fully tested using a Test-Driven Development (TDD) approach:
