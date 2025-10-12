@@ -12,3 +12,7 @@ pytz>=2024.1
 six>=1.16.0
 SQLAlchemy>=2.0.34
 Werkzeug>=3.0.3
+
+# Development/testing tools
+pytest>=8.4.2
+pytest-cov>=5.0.0
