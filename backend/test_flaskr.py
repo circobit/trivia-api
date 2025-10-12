@@ -5,6 +5,7 @@ import json
 from flaskr import create_app
 from models import db, Question, Category
 from test_data import categories_data, questions_data
+from unittest.mock import patch
 
 
 class TriviaTestCase(unittest.TestCase):
@@ -52,11 +53,6 @@ class TriviaTestCase(unittest.TestCase):
         with self.app.app_context():
             db.session.remove()
             db.drop_all()
-
-    """
-    TODO
-    Write at least one test for each test for successful operation and for expected errors.
-    """
     
     # Tests for /questions endpoint
     def test_get_paginated_questions(self):
@@ -91,6 +87,26 @@ class TriviaTestCase(unittest.TestCase):
         self.assertEqual(data["success"], False)
         self.assertEqual(data["error"], 404)
         self.assertEqual(data["message"], "resource not found")
+
+
+    def test_422_if_page_parameter_is_not_positive(self):
+        # Get response object for page=0
+        res_zero = self.client.get("/questions?page=0")
+        data_zero = json.loads(res_zero.data)
+
+        # Check status code and response for page=0
+        self.assertEqual(res_zero.status_code, 422)
+        self.assertEqual(data_zero["success"], False)
+        self.assertEqual(data_zero["message"], "unprocessable")
+
+        # Get response object for page=-1
+        res_negative = self.client.get("/questions?page=-1")
+        data_negative = json.loads(res_negative.data)
+
+        # Check status code and response for page=-1
+        self.assertEqual(res_negative.status_code, 422)
+        self.assertEqual(data_negative["success"], False)
+        self.assertEqual(data_negative["message"], "unprocessable")
 
 
     def test_422_if_page_parameter_is_not_an_integer(self):
@@ -338,6 +354,31 @@ class TriviaTestCase(unittest.TestCase):
         # Check that the total questions increased by 1
         self.assertEqual(total_questions_after, total_questions_before + 1)
 
+
+    # Simulate an unexpected database error (for example, connection lost) 
+    # and ensure the rollback logic is tested
+    @patch('models.Question.insert')
+    def test_422_if_question_insert_fails(self, mock_insert):
+        # Configure the mock to raise a generic exception
+        mock_insert.side_effect = Exception("Database error")
+
+        # Question data that is otherwise valid
+        question_to_add = {
+            "question": "This question will fail to insert.",
+            "answer": "Due to a mock error.",
+            "category": 1,
+            "difficulty": 1
+        }
+        
+        # Make the request
+        res = self.client.post("/questions", json=question_to_add)
+        data = json.loads(res.data)
+
+        # Assert that the request is unprocessable
+        self.assertEqual(res.status_code, 422)
+        self.assertEqual(data['success'], False)
+        self.assertEqual(data['message'], 'unprocessable')
+    
 
     def test_400_bad_request_create_question(self):
         # Use app context to call the db
@@ -624,7 +665,7 @@ class TriviaTestCase(unittest.TestCase):
         self.assertTrue(data["question"]["difficulty"])
     
 
-    # Test quiz endpoint
+    # Test quiz endpoint for 'All' category
     def test_quiz_endpoint_for_all_category(self):
         # Define payload
         payload = {
@@ -648,6 +689,39 @@ class TriviaTestCase(unittest.TestCase):
         self.assertTrue(data["question"]["answer"])
         self.assertTrue(data["question"]["difficulty"])
     
+
+    #Tests that a 400 Bad Request error is returned 
+    # when the request body is not valid JSON.
+    def test_400_if_quiz_body_is_malformed_json(self):
+        # Send a request with a malformed JSON body
+        res = self.client.post(
+            '/quizzes',
+            data='this is not valid json',
+            content_type='application/json'
+        )
+        data = json.loads(res.data)
+
+        # Assert that the request is a bad request
+        self.assertEqual(res.status_code, 422)
+        self.assertEqual(data['success'], False)
+        self.assertEqual(data['message'], 'unprocessable')
+    
+
+    # Tests that a 422 Unprocessable error is returned when the JSON
+    # body is a valid JSON type (e.g., list) but not the expected object.
+    def test_422_if_quiz_body_has_wrong_type(self):
+        # Payload is a list instead of the expected dictionary
+        payload = []
+        
+        # Make the request
+        res = self.client.post('/quizzes', json=payload)
+        data = json.loads(res.data)
+
+        # Assert that the request is unprocessable
+        self.assertEqual(res.status_code, 422)
+        self.assertEqual(data['success'], False)
+        self.assertEqual(data['message'], 'unprocessable')
+
 
     def test_end_of_quiz(self):
         # Add all the available questions numbers to the payload

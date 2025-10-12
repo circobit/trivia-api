@@ -1,5 +1,7 @@
 ## Trivia API
 
+![Python Version](https://img.shields.io/badge/python-3.12.12-blue) ![Flask](https://img.shields.io/badge/flask-3.0-green) ![Coverage](https://img.shields.io/badge/tests-97%25-brightgreen)
+
 A backend REST API built with **Flask** and **PostgreSQL**, developed as part of Udacity’s *Backend Developer Nanodegree*.  
 It powers a trivia game application, handling questions, categories, search, and quiz logic.
 
@@ -22,6 +24,7 @@ It powers a trivia game application, handling questions, categories, search, and
 	- [Running the Frontend Application](#running-the-frontend-application)
 - [🧪 Running Tests](#-running-tests)
 	- [Create the Test Database](#create-the-test-database)
+	- [Test Coverage](#test-coverage)
 - [🔍 API Reference](#-api-reference)
 	- [Error Handling](#error-handling)
 	- [GET `/categories`](#get-categories)
@@ -33,6 +36,7 @@ It powers a trivia game application, handling questions, categories, search, and
 	- [POST `/quizzes`](#post-quizzes)
 - [🔧 Current Status](#-current-status)
 - [🗺️ Roadmap](#️-roadmap)
+- [🧱 Python 3.12 Upgrade Notes](#-python-312-upgrade-notes)
 - [👤 Author](#-author)
 - [📄 License](#-license)
 
@@ -63,7 +67,7 @@ This project involved building the entire backend RESTful API from a partially c
 
 ### Prerequisites
 
-* Python 3.9+
+* Python 3.12.12 (fully tested and recommended)
 * Pip
 * Node.js & NPM
 * PostgreSQL
@@ -162,7 +166,15 @@ self.database_password = "your_password"
 To run the backend test suite, navigate to the `backend/` directory and run:
 
 ```bash
-python test_flaskr.py
+pytest -v
+```
+
+### Test Coverage
+
+To run the test coverage report, go to the `backend/` directory and run:
+
+```bash
+pytest --cov=flaskr --cov-report=term-missing
 ```
 
 ## 🔍 API Reference
@@ -369,13 +381,14 @@ curl [http://127.0.0.1:5000/quizzes](http://127.0.0.1:5000/quizzes) -X POST -H "
 ## 🔧 Current Status
 
 The backend currently runs locally using Flask’s development server and connects to a PostgreSQL instance.
-It includes a complete test suite validating CRUD, search, and quiz endpoints.
+It has been fully upgraded and tested with **Python 3.12.12**, achieving **97% code coverage** with all tests passing.
 
+The project currently validates CRUD, search, and quiz endpoints through automated unit tests.
 Future improvements will focus on applying DevOps and SRE best practices to make the service production-ready.
 
 ## 🗺️ Roadmap
 
-- [ ] Upgrade and test the project with Python 3.12
+- [x] Upgrade and test the project with Python 3.12
 - [ ] Replace hardcoded database credentials with environment variables
 - [ ] Add Dockerfile and docker-compose configuration
 - [ ] Introduce `/healthz` and `/readyz` endpoints
@@ -383,13 +396,22 @@ Future improvements will focus on applying DevOps and SRE best practices to make
 - [ ] Implement GitHub Actions for automated testing and builds
 - [ ] Prepare Helm chart for Kubernetes deployment
 
+## 🧱 Python 3.12 Upgrade Notes
+
+This project was upgraded from Python 3.9 to **Python 3.12.12**.  
+Key updates:
+- Updated dependencies for Python 3.12 compatibility.  
+- Migrated to `pytest 8.x` and `Flask 3.0` with no breaking changes.  
+- Verified functionality and database migrations through the test suite.
+- Achieved increased test coverage from 93% → 97%.
+
+---
+
 ## 👤 Author
 
 **Cristian Cevasco**  
-Site Reliability Engineer
-
-I specialize in building reliable and observable systems, combining automation and scalability best practices.  
-This repository is part of my ongoing portfolio of backend and reliability engineering projects.
+Site Reliability Engineer  
+[GitHub](https://github.com/circobit) • [LinkedIn](https://www.linkedin.com/in/cristiancevasco)
 
 ## 📄 License
 

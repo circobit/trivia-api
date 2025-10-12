@@ -1,6 +1,7 @@
 .vscode
 __pycache__
 venv
+.python-version
 
 # OS generated files #
 ######################
@@ -15,3 +16,9 @@ env/
 frontend/node_modules/
 
 .env
+
+# Test coverage reports
+.coverage
+htmlcov/
+*.cover
+coverage.xml
