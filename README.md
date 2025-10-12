@@ -1,10 +1,54 @@
 ## Trivia API
 
-This project is the backend API for the Udacitrivia web application. The API provides a system to manage a database of trivia questions, allowing users to view questions by category, add new questions, search for existing questions and play a quiz game.
+A backend REST API built with **Flask** and **PostgreSQL**, developed as part of Udacity’s *Backend Developer Nanodegree*.  
+It powers a trivia game application, handling questions, categories, search, and quiz logic.
+
+> **Note:** The frontend interface was provided by Udacity and is included only to interact with and test the API.
 
 ![App Demo](docs/screenshots/1-homepage.png)
 
-## Features Implemented
+## Table of Contents
+
+- [Trivia API](#trivia-api)
+- [Table of Contents](#table-of-contents)
+- [🧩 Project Overview](#-project-overview)
+- [⚙️ Features Implemented](#️-features-implemented)
+- [🚀 Getting Started](#-getting-started)
+	- [Prerequisites](#prerequisites)
+	- [Backend Installation \& Setup](#backend-installation--setup)
+	- [Frontend (Provided)](#frontend-provided)
+- [🖥️ Running the Application](#️-running-the-application)
+	- [Running the Backend Server](#running-the-backend-server)
+	- [Running the Frontend Application](#running-the-frontend-application)
+- [🧪 Running Tests](#-running-tests)
+	- [Create the Test Database](#create-the-test-database)
+- [🔍 API Reference](#-api-reference)
+	- [Error Handling](#error-handling)
+	- [GET `/categories`](#get-categories)
+	- [GET `/questions?page=<integer>`](#get-questionspageinteger)
+	- [DELETE `/questions/<int:question_id>`](#delete-questionsintquestion_id)
+	- [POST `/questions`](#post-questions)
+	- [POST `/questions/search`](#post-questionssearch)
+	- [GET `/categories/<int:category_id>/questions`](#get-categoriesintcategory_idquestions)
+	- [POST `/quizzes`](#post-quizzes)
+- [🔧 Current Status](#-current-status)
+- [🗺️ Roadmap](#️-roadmap)
+- [👤 Author](#-author)
+- [📄 License](#-license)
+
+## 🧩 Project Overview
+
+The Trivia API enables users to:
+
+- View all available trivia categories.
+- Browse paginated trivia questions.
+- Create and delete questions.
+- Search questions by keyword.
+- Play a quiz game that returns non-repeated random questions from a selected category.
+
+The backend was built using Flask and SQLAlchemy, following Test-Driven Development (TDD) principles, with unit tests ensuring correctness and reliability.
+
+## ⚙️ Features Implemented
 
 This project involved building the entire backend RESTful API from a partially completed Flask application. The following features were implemented and fully tested using a Test-Driven Development (TDD) approach:
 
@@ -13,9 +57,9 @@ This project involved building the entire backend RESTful API from a partially c
 * **Category-Specific Views:** Created an endpoint to retrieve all questions belonging to a single, user-selected category.
 * **Powerful Search:** Built a search endpoint that allows users to find questions based on a case-insensitive, partial text match.
 * **Interactive Quiz Logic:** Designed and implemented the core quiz functionality with a stateful endpoint that serves random, non-repeating questions from either "All" categories or a specific one.
-* **Robust Error Handling:** Implemented comprehensive error handlers for common status codes (`404`, `422`, `405`) to provide clear, consistent JSON error responses.
+* **Error Handling:** Implemented comprehensive error handlers for common status codes (`404`, `422`, `405`) to provide clear, consistent JSON error responses.
 
-## Getting Started
+## 🚀 Getting Started
 
 ### Prerequisites
 
@@ -28,8 +72,8 @@ This project involved building the entire backend RESTful API from a partially c
 
 1.  **Clone the Repository:**
     ```bash
-    git clone <your-repo-link>
-    cd Udacitrivia
+    git clone git@github.com:circobit/trivia-api.git
+    cd trivia-api
     ```
 
 2.  **Navigate to the Backend Directory:**
@@ -56,7 +100,9 @@ This project involved building the entire backend RESTful API from a partially c
     psql trivia < trivia.psql
     ```
 
-### Frontend Installation
+### Frontend (Provided)
+The frontend application was provided by Udacity for interacting with and testing the API.  
+To use it locally:
 
 1.  **Navigate to the Frontend Directory:**
     ```bash
@@ -68,7 +114,7 @@ This project involved building the entire backend RESTful API from a partially c
     npm install
     ```
 
-## Running the Application
+## 🖥️ Running the Application
 
 Both the backend and frontend servers must be running concurrently.
 
@@ -92,7 +138,7 @@ export NODE_OPTIONS=--openssl-legacy-provider && npm start
 
 The frontend will be running at `http://127.0.0.1:3000/`
 
-## Running Tests
+## 🧪 Running Tests
 
 This project includes tests located in `backend/test_flaskr.py`.
 
@@ -119,13 +165,23 @@ To run the backend test suite, navigate to the `backend/` directory and run:
 python test_flaskr.py
 ```
 
-## API Reference
+## 🔍 API Reference
+
+| **Method** | **Endpoint** | **Description** |
+|-------------|--------------|-----------------|
+| GET | `/categories` | Retrieve all categories |
+| GET | `/questions?page=<n>` | Paginated list of questions |
+| POST | `/questions` | Add a new question |
+| DELETE | `/questions/<id>` | Delete a question |
+| POST | `/questions/search` | Search questions by keyword |
+| GET | `/categories/<id>/questions` | Get questions in a category |
+| POST | `/quizzes` | Retrieve random quiz question |
 
 ### Error Handling
 
 Errors are returned in a consistent JSON format:
 
-```python
+```json
 {
     "success": false,
     "error": 404,
@@ -309,3 +365,33 @@ curl [http://127.0.0.1:5000/quizzes](http://127.0.0.1:5000/quizzes) -X POST -H "
     "question": null
 }
 ```
+
+## 🔧 Current Status
+
+The backend currently runs locally using Flask’s development server and connects to a PostgreSQL instance.
+It includes a complete test suite validating CRUD, search, and quiz endpoints.
+
+Future improvements will focus on applying DevOps and SRE best practices to make the service production-ready.
+
+## 🗺️ Roadmap
+
+- [ ] Upgrade and test the project with Python 3.12
+- [ ] Replace hardcoded database credentials with environment variables
+- [ ] Add Dockerfile and docker-compose configuration
+- [ ] Introduce `/healthz` and `/readyz` endpoints
+- [ ] Expose Prometheus-compatible metrics
+- [ ] Implement GitHub Actions for automated testing and builds
+- [ ] Prepare Helm chart for Kubernetes deployment
+
+## 👤 Author
+
+**Cristian Cevasco**  
+Site Reliability Engineer
+
+I specialize in building reliable and observable systems, combining automation and scalability best practices.  
+This repository is part of my ongoing portfolio of backend and reliability engineering projects.
+
+## 📄 License
+
+This project is licensed under the **MIT License**.  
+You are free to use, modify, and distribute this software in accordance with the terms of the license.
